@@ -1,0 +1,1418 @@
+{
+  "info": {
+    "_postman_id": "e1c0b91a-6b59-4d3e-9b8c-technical-test-support",
+    "name": "Prueba Técnica - Solicitudes de Soporte",
+    "description": "Colección de pruebas de la API REST de solicitudes de soporte desarrollada con Yii2 y MongoDB.\n\nOrden recomendado de ejecución:\n1. Listado y filtros.\n2. Creación.\n3. Consulta por identificador.\n4. Cambio de estado.\n5. Resumen.\n\nLa colección incluye casos correctos e incorrectos para validar códigos HTTP, validaciones de backend, ObjectId, autenticación, protección de usuario_id y estado inicial, filtros y reglas de transición.\n\nLas peticiones de creación guardan automáticamente IDs en variables de colección para reutilizarlos en las pruebas posteriores. Los escenarios 500, API no disponible y 403 se documentan como manuales porque dependen de infraestructura o de reglas de autorización no definidas en el caso práctico.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "100-token",
+      "type": "string"
+    },
+    {
+      "key": "solicitudIdFlujo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "solicitudIdManipulacion",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "existingSolicitudId",
+      "value": "6ab57eeba107a4952a096a26",
+      "type": "string",
+      "description": "Solicitud existente observada en el entorno local. Puede sustituirse por cualquier ID válido existente."
+    },
+    {
+      "key": "notFoundObjectId",
+      "value": "aaaaaaaaaaaaaaaaaaaaaaaa",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Listado y filtros",
+      "description": "Valida GET /api/solicitudes y que los filtros se envían al backend.",
+      "item": [
+        {
+          "name": "Listar solicitudes - 200",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('success=true y data es arreglo', function () {",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Ejemplo de respuesta",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/solicitudes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "solicitudes"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"_id\": \"6ab57eeba107a4952a096a26\",\n      \"titulo\": \"Error en react\",\n      \"descripcion\": \"Ejemplo de solicitud\",\n      \"prioridad\": \"ALTA\",\n      \"estado\": \"EN_PROCESO\",\n      \"usuario_id\": 100,\n      \"fecha_creacion\": \"2026-09-24T19:50:03.000Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Filtrar PENDIENTE + ALTA - 200",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes?estado=PENDIENTE&prioridad=ALTA",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes?estado=PENDIENTE&prioridad=ALTA"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Todos los resultados respetan los filtros', function () {",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "    json.data.forEach(function (s) {",
+                  "        pm.expect(s.estado).to.eql('PENDIENTE');",
+                  "        pm.expect(s.prioridad).to.eql('ALTA');",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filtrar solo por prioridad BAJA - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Todos los registros tienen prioridad BAJA', function () {",
+                  "    json.data.forEach(function (s) { pm.expect(s.prioridad).to.eql('BAJA'); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/solicitudes?prioridad=BAJA"
+          }
+        },
+        {
+          "name": "Prioridad inválida - 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes?prioridad=URGENTE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes?prioridad=URGENTE"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Mensaje entendible', function () {",
+                  "    pm.expect(json.message).to.include('prioridad');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estado inválido - 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes?estado=CANCELADA",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes?estado=CANCELADA"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Mensaje entendible', function () {",
+                  "    pm.expect(json.message).to.include('estado');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estado inválido en filtro - 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('El backend devuelve un mensaje entendible', function () {",
+                  "    pm.expect(json.message).to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/solicitudes?estado=CANCELADA"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Creación",
+      "description": "Valida POST /api/solicitudes, campos obligatorios, prioridad permitida, autenticación y que estado/usuario_id sean controlados por el backend.",
+      "item": [
+        {
+          "name": "Crear solicitud válida - 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Prueba Postman - flujo\",\n  \"descripcion\": \"Solicitud creada para probar las transiciones de estado.\",\n  \"prioridad\": \"MEDIA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Estado inicial PENDIENTE', function () {",
+                  "    pm.expect(json.data.estado).to.eql('PENDIENTE');",
+                  "});",
+                  "pm.test('Usuario asignado por backend', function () {",
+                  "    pm.expect(json.data.usuario_id).to.exist;",
+                  "});",
+                  "pm.collectionVariables.set('solicitudIdFlujo', json.data._id);"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Ejemplo de respuesta",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/solicitudes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "solicitudes"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"titulo\": \"Prueba Postman - flujo\",\n  \"descripcion\": \"Solicitud creada para probar las transiciones de estado.\",\n  \"prioridad\": \"MEDIA\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"6ab600000000000000000001\",\n    \"titulo\": \"Prueba Postman - flujo\",\n    \"descripcion\": \"Solicitud creada para probar las transiciones de estado.\",\n    \"prioridad\": \"MEDIA\",\n    \"estado\": \"PENDIENTE\",\n    \"usuario_id\": 100\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Intento de manipular estado y usuario - backend los ignora - 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Prueba de campos protegidos\",\n  \"descripcion\": \"El cliente intenta enviar estado y usuario_id.\",\n  \"prioridad\": \"BAJA\",\n  \"estado\": \"FINALIZADA\",\n  \"usuario_id\": 999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Estado forzado por backend a PENDIENTE', function () {",
+                  "    pm.expect(json.data.estado).to.eql('PENDIENTE');",
+                  "});",
+                  "pm.test('usuario_id del cliente no es aceptado', function () {",
+                  "    pm.expect(json.data.usuario_id).to.not.eql(999);",
+                  "});",
+                  "pm.collectionVariables.set('solicitudIdManipulacion', json.data._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Título faltante - 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"Solicitud sin título.\",\n  \"prioridad\": \"ALTA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Error de validación de título', function () {",
+                  "    pm.expect(json.success).to.eql(false);",
+                  "    pm.expect(json.errors).to.have.property('titulo');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descripción faltante - 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Solicitud sin descripción\",\n  \"prioridad\": \"ALTA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Error de validación de descripción', function () {",
+                  "    pm.expect(json.success).to.eql(false);",
+                  "    pm.expect(json.errors).to.have.property('descripcion');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Prioridad inválida - 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Prioridad incorrecta\",\n  \"descripcion\": \"Se intenta enviar una prioridad no permitida.\",\n  \"prioridad\": \"URGENTE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Error de prioridad', function () {",
+                  "    pm.expect(json.success).to.eql(false);",
+                  "    pm.expect(json.errors).to.have.property('prioridad');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear sin token - 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Sin autenticación\",\n  \"descripcion\": \"Esta solicitud no debe registrarse.\",\n  \"prioridad\": \"MEDIA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Respuesta de autenticación', function () {",
+                  "    pm.expect(json.status).to.eql(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Prioridad faltante - 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Existe error de prioridad', function () {",
+                  "    pm.expect(json.errors).to.have.property('prioridad');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/solicitudes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Solicitud sin prioridad\",\n  \"descripcion\": \"Se omite el campo prioridad.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Token inválido - 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer token-invalido",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/solicitudes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Solicitud con token inválido\",\n  \"descripcion\": \"No debe registrarse.\",\n  \"prioridad\": \"MEDIA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Consultar por ID",
+      "description": "Valida ObjectId, consulta de documento existente y documento inexistente.",
+      "item": [
+        {
+          "name": "Consultar solicitud existente - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Devuelve el documento solicitado', function () {",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data._id).to.eql(pm.collectionVariables.get('existingSolicitudId'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/solicitudes/{{existingSolicitudId}}",
+            "description": "Por defecto usa el ID 6ab57eeba107a4952a096a26 observado en el entorno local."
+          }
+        },
+        {
+          "name": "Consultar solicitud creada - 200",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes/{{solicitudIdFlujo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes",
+                "{{solicitudIdFlujo}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Devuelve la solicitud esperada', function () {",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data._id).to.eql(pm.collectionVariables.get('solicitudIdFlujo'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "ObjectId inválido - 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes/id-invalido",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes",
+                "id-invalido"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Mensaje de ObjectId inválido', function () {",
+                  "    pm.expect(json.message).to.include('identificador');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Ejemplo de respuesta",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/solicitudes/id-invalido",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "solicitudes",
+                    "id-invalido"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"name\": \"Bad Request\",\n  \"message\": \"El identificador de la solicitud no es válido.\",\n  \"status\": 400\n}"
+            }
+          ]
+        },
+        {
+          "name": "Documento inexistente - 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes/{{notFoundObjectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes",
+                "aaaaaaaaaaaaaaaaaaaaaaaa"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Mensaje de documento inexistente', function () {",
+                  "    pm.expect(json.message).to.include('no fue encontrada');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Ejemplo de respuesta",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/solicitudes/{{notFoundObjectId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "solicitudes",
+                    "aaaaaaaaaaaaaaaaaaaaaaaa"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"name\": \"Not Found\",\n  \"message\": \"La solicitud no fue encontrada.\",\n  \"status\": 404\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Cambio de estado",
+      "description": "Ejecutar en este orden. Usa solicitudIdFlujo creada en la carpeta 02 para probar la secuencia PENDIENTE → EN_PROCESO → FINALIZADA y rechazos.",
+      "item": [
+        {
+          "name": "PENDIENTE a FINALIZADA directo - 400",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes/{{solicitudIdFlujo}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes",
+                "{{solicitudIdFlujo}}",
+                "estado"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"FINALIZADA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Transición directa rechazada', function () {",
+                  "    pm.expect(json.message).to.include('transición');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PENDIENTE a EN_PROCESO - 200",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes/{{solicitudIdFlujo}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes",
+                "{{solicitudIdFlujo}}",
+                "estado"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"EN_PROCESO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Estado EN_PROCESO', function () {",
+                  "    pm.expect(json.data.estado).to.eql('EN_PROCESO');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "EN_PROCESO a FINALIZADA - 200",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes/{{solicitudIdFlujo}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes",
+                "{{solicitudIdFlujo}}",
+                "estado"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"FINALIZADA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Estado FINALIZADA', function () {",
+                  "    pm.expect(json.data.estado).to.eql('FINALIZADA');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "FINALIZADA a PENDIENTE - 400",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes/{{solicitudIdFlujo}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes",
+                "{{solicitudIdFlujo}}",
+                "estado"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"PENDIENTE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Retroceso rechazado', function () {",
+                  "    pm.expect(json.message).to.include('transición');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estado no definido - 400",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes/{{solicitudIdManipulacion}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes",
+                "{{solicitudIdManipulacion}}",
+                "estado"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"CANCELADA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Estado inválido rechazado', function () {",
+                  "    pm.expect(json.message).to.include('estado');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cambio de estado sin token - 401",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes/{{solicitudIdManipulacion}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes",
+                "{{solicitudIdManipulacion}}",
+                "estado"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"EN_PROCESO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Respuesta 401', function () {",
+                  "    pm.expect(json.status).to.eql(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cambio de estado en documento inexistente - 404",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes/{{notFoundObjectId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes",
+                "aaaaaaaaaaaaaaaaaaaaaaaa",
+                "estado"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"EN_PROCESO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Documento inexistente', function () {",
+                  "    pm.expect(json.message).to.include('no fue encontrada');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Resumen",
+      "description": "Valida GET /api/solicitudes/resumen y la estructura de las métricas.",
+      "item": [
+        {
+          "name": "Resumen por estado - 200",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/solicitudes/resumen",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes",
+                "resumen"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Contiene las cuatro métricas', function () {",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.have.all.keys('total', 'pendientes', 'en_proceso', 'finalizadas');",
+                  "});",
+                  "pm.test('Total coincide con la suma de estados', function () {",
+                  "    const d = json.data;",
+                  "    pm.expect(d.total).to.eql(d.pendientes + d.en_proceso + d.finalizadas);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Ejemplo de respuesta",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/solicitudes/resumen",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "solicitudes",
+                    "resumen"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"total\": 9,\n    \"pendientes\": 4,\n    \"en_proceso\": 1,\n    \"finalizadas\": 4\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 - Escenarios manuales",
+      "description": "API NO DISPONIBLE:\n1. Detener temporalmente `php yii serve --port=8080`.\n2. Recargar la aplicación React o ejecutar cualquier petición.\n3. React debe mostrar un mensaje claro como `API NO DISPONIBLE.` y no presentar ceros como datos reales.\n\nHTTP 500:\nLa aplicación ya contempla ServerErrorHttpException cuando falla una operación de persistencia. No se fuerza deliberadamente una falla de infraestructura dentro de la colección porque el escenario depende de una avería real de persistencia/servidor.\n\nHTTP 403:\nLa prueba indica manejarlo `cuando corresponda`. El caso práctico no define roles o permisos que produzcan un 403, por lo que no se fabrica una regla de autorización artificial.",
+      "item": []
+    }
+  ]
+}

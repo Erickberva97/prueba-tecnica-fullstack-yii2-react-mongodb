@@ -1,0 +1,622 @@
+:root {
+  --primary: #245fb8;
+  --primary-dark: #1e4f9a;
+  --primary-soft: #eef4fc;
+
+  --success: #177245;
+  --success-soft: #eaf7ef;
+
+  --warning: #9a5b08;
+  --warning-soft: #fff4d6;
+
+  --danger: #b42318;
+  --danger-soft: #fef0ef;
+
+  --text-primary: #172033;
+  --text-secondary: #667085;
+
+  --border: #dfe3e8;
+  --border-soft: #edf0f3;
+
+  --background: #f4f6f8;
+  --surface: #ffffff;
+}
+
+
+/* =====================================================
+   CONTENEDOR GENERAL
+   ===================================================== */
+
+.app-container {
+  width: min(1500px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 28px 0 50px;
+}
+
+
+/* =====================================================
+   ENCABEZADO
+   ===================================================== */
+
+.page-header {
+  margin-bottom: 20px;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.page-header p {
+  margin: 5px 0 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   PANELES
+   ===================================================== */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.panel-header {
+  margin-bottom: 17px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.panel-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.panel-header p {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   RESUMEN
+   ===================================================== */
+
+.resumen-section {
+  margin-bottom: 18px;
+}
+
+.resumen-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.resumen-card {
+  min-height: 82px;
+  padding: 15px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.resumen-label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.resumen-value {
+  display: block;
+  color: var(--text-primary);
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.resumen-card.total {
+  border-left: 3px solid #667085;
+}
+
+.resumen-card.pendientes {
+  border-left: 3px solid #d97706;
+}
+
+.resumen-card.proceso {
+  border-left: 3px solid #2563eb;
+}
+
+.resumen-card.finalizadas {
+  border-left: 3px solid #16a34a;
+}
+
+
+/* =====================================================
+   FORMULARIO + FILTROS
+   ===================================================== */
+
+.management-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(300px, 0.8fr);
+  gap: 16px;
+  margin-bottom: 18px;
+  align-items: stretch;
+}
+
+.form-panel,
+.filters-panel {
+  padding: 20px;
+}
+
+.form-top-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(210px, 0.8fr);
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 13px;
+}
+
+.form-group label {
+  color: #344054;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.form-control {
+  width: 100%;
+  height: 40px;
+  padding: 8px 11px;
+
+  color: var(--text-primary);
+  background: var(--surface);
+
+  border: 1px solid #cfd5dd;
+  border-radius: 5px;
+
+  outline: none;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.form-control:hover {
+  border-color: #aeb6c1;
+}
+
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(36, 95, 184, 0.1);
+}
+
+textarea.form-control {
+  height: 82px;
+  min-height: 82px;
+  resize: vertical;
+}
+
+.field-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 11px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 3px;
+}
+
+
+/* =====================================================
+   FILTROS
+   ===================================================== */
+
+.filters-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.filters-panel form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.filter-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+
+/* =====================================================
+   BOTONES
+   ===================================================== */
+
+.btn {
+  height: 38px;
+  padding: 0 15px;
+
+  border: 1px solid transparent;
+  border-radius: 5px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+
+  cursor: pointer;
+}
+
+.btn-primary {
+  color: #ffffff;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  color: #344054;
+  background: #ffffff;
+  border-color: #cfd5dd;
+}
+
+.btn-secondary:hover {
+  background: #f7f8fa;
+  border-color: #aeb6c1;
+}
+
+.btn-action {
+  min-height: 34px;
+  padding: 7px 11px;
+
+  color: #174ea6;
+  background: #f1f6fd;
+
+  border: 1px solid #bfd5f5;
+  border-radius: 5px;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.btn-action:hover {
+  background: #e6f0fc;
+  border-color: #9fc1ee;
+}
+
+
+/* =====================================================
+   TABLA
+   ===================================================== */
+
+.table-panel {
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.table-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.table-header p {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.solicitudes-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.solicitudes-table th {
+  padding: 11px 15px;
+
+  color: #586273;
+  background: #f7f8fa;
+
+  border-bottom: 1px solid #e4e7ec;
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.55px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.solicitudes-table td {
+  padding: 12px 15px;
+
+  color: #344054;
+
+  border-bottom: 1px solid var(--border-soft);
+
+  font-size: 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.solicitudes-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.solicitudes-table tbody tr:hover {
+  background: #fafbfc;
+}
+
+.id-cell {
+  width: 205px;
+
+  color: #667085;
+
+  font-family:
+    Consolas,
+    Monaco,
+    monospace;
+
+  font-size: 11px;
+
+  white-space: nowrap;
+}
+
+.title-cell {
+  min-width: 210px;
+
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.date-cell {
+  min-width: 180px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.action-cell {
+  min-width: 155px;
+}
+
+.no-action {
+  color: #98a2b3;
+}
+
+
+/* =====================================================
+   BADGES
+   ===================================================== */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 4px 8px;
+
+  border-radius: 4px;
+
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+
+  white-space: nowrap;
+}
+
+
+/* Prioridad */
+
+.prioridad-baja {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.prioridad-media {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.prioridad-alta {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+
+/* Estado */
+
+.estado-pendiente {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.estado-en_proceso {
+  color: #1e40af;
+  background: #dbeafe;
+}
+
+.estado-finalizada {
+  color: #166534;
+  background: #dcfce7;
+}
+
+
+/* =====================================================
+   MENSAJES
+   ===================================================== */
+
+.alert {
+  margin-bottom: 16px;
+  padding: 11px 13px;
+
+  border: 1px solid;
+  border-radius: 5px;
+
+  font-size: 12px;
+}
+
+.alert-error {
+  color: #991b1b;
+  background: var(--danger-soft);
+  border-color: #f8b4b4;
+}
+
+
+/* =====================================================
+   API NO DISPONIBLE
+   ===================================================== */
+
+.api-error-panel {
+  max-width: 620px;
+  padding: 22px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.api-error-panel h2 {
+  margin: 0 0 7px;
+
+  color: var(--danger);
+  font-size: 18px;
+}
+
+.api-error-panel p {
+  margin: 0 0 17px;
+
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   CARGA / ESTADO VACÍO
+   ===================================================== */
+
+.loading {
+  padding: 40px 0;
+
+  color: var(--text-secondary);
+
+  font-size: 13px;
+  text-align: center;
+}
+
+.empty-state {
+  padding: 36px 20px;
+
+  color: var(--text-secondary);
+
+  font-size: 13px;
+  text-align: center;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 1100px) {
+  .management-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-fields {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .filter-actions {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-container {
+    width: calc(100% - 24px);
+    padding: 20px 0 35px;
+  }
+
+  .page-header h1 {
+    font-size: 24px;
+  }
+
+  .resumen-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .resumen-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+  }
+
+  .filter-actions .btn {
+    width: 100%;
+  }
+
+  .form-panel,
+  .filters-panel {
+    padding: 16px;
+  }
+}
